@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 import { CustomCard } from "../../../components/custom-card/CustomCard";
 import { PokemonDataResponseType } from "../../../services/apiRequestsTypes";
 import { requestLinks } from "../../../services/apiRequests";
-import { Box, Stack } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import {
   BodyText,
   SecondaryText,
@@ -14,11 +21,12 @@ import {
   infoSlideContainer,
   infoSlideLoaderStyle,
   infoSlideScrollContainer,
-  noActivePokemonCardStyle,
   outterPokemonInfoSlideContainer,
-  pokemonInfoSlideContainer,
+  outterPokemonInfoSlideContainerMobile,
+  noActivePokemonCardStyle,
   pokemonSpriteStyle,
   statsContainer,
+  pokemonInfoSlideContainer,
 } from "./style";
 import { AbilityTag } from "../../../components/pokemon-information/ability-tag";
 import { StatBar } from "../../../components/pokemon-information/stat-bar";
@@ -28,6 +36,7 @@ import { capitalise } from "../../../utils/helpers";
 
 import defaultImage from "../../../assets/default_pokemon_info.png";
 import pokeballLoader from "../../../assets/pokeball-icon.png";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 type MoreInfoSlideType = {
   pokedexData: Record<string, PokemonDataResponseType>;
@@ -40,6 +49,9 @@ export const MoreInfoSlide: React.FC<MoreInfoSlideType> = ({
   activePokemonData,
   setActivePokemon,
 }) => {
+  const theme = useTheme();
+  const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
+
   const [pokemonData, setPokemonData] =
     useState<PokemonDataResponseType>(pokemonDataDefault);
   const [pokemonAnimation, setPokemonAnimation] =
@@ -48,6 +60,10 @@ export const MoreInfoSlide: React.FC<MoreInfoSlideType> = ({
   const [transition, setTransition] = useState<Record<string, string>>(
     pokemonInfoSlideContainer
   );
+
+  const handleSlideClose = () => {
+    setActivePokemon("");
+  };
 
   useEffect(() => {
     let dataTimer: ReturnType<typeof setTimeout> | null = null;
@@ -69,6 +85,17 @@ export const MoreInfoSlide: React.FC<MoreInfoSlideType> = ({
   }, [activePokemonData]);
 
   useEffect(() => {
+    if (isTablet) {
+      setTransition({
+        ...transition,
+        width: "100%",
+      });
+    } else {
+      setTransition({ ...transition, width: "350px" });
+    }
+  }, [isTablet]);
+
+  useEffect(() => {
     if (pokemonData.name) {
       // get animation sprite
       if (pokemonData.id > 650) {
@@ -81,75 +108,99 @@ export const MoreInfoSlide: React.FC<MoreInfoSlideType> = ({
   }, [pokemonData]);
 
   return (
-    <Box sx={outterPokemonInfoSlideContainer}>
-      <CustomCard sx={transition}>
+    <>
+      {(!isTablet || (isTablet && activePokemonData)) && (
         <Box
-          component="img"
-          src={pokemonAnimation}
-          alt={`${activePokemonData?.species.name ?? "Default"}'s Sprite`}
-          sx={pokemonSpriteStyle}
-        />
-        <Box sx={infoSlideScrollContainer}>
-          <Box sx={infoSlideContainer}>
-            {hasSelectedActive ? (
-              <Stack width="100%">
-                <SecondaryText
-                  fontSize="12px"
-                  fontWeight="bold"
-                  marginBottom="-5px"
-                >
-                  N# {pokemonData.id}
-                </SecondaryText>
-                <BodyText fontWeight="bold" fontSize="24px">
-                  {capitalise(pokemonData.species.name)}
-                </BodyText>
+          sx={
+            isTablet
+              ? outterPokemonInfoSlideContainerMobile(
+                  pokemonData?.types[0]?.type.name
+                )
+              : outterPokemonInfoSlideContainer
+          }
+        >
+          {isTablet && (
+            <IconButton onClick={handleSlideClose}>
+              <CloseRoundedIcon />
+            </IconButton>
+          )}
+          <CustomCard sx={transition}>
+            <Box
+              component="img"
+              src={pokemonAnimation}
+              alt={`${activePokemonData?.species.name ?? "Default"}'s Sprite`}
+              sx={pokemonSpriteStyle}
+            />
+            <Box sx={infoSlideScrollContainer}>
+              <Box sx={infoSlideContainer}>
+                {hasSelectedActive ? (
+                  <Stack width="100%">
+                    <SecondaryText
+                      fontSize="12px"
+                      fontWeight="bold"
+                      marginBottom="-5px"
+                    >
+                      N# {pokemonData.id}
+                    </SecondaryText>
+                    <BodyText fontWeight="bold" fontSize="24px">
+                      {capitalise(pokemonData.species.name)}
+                    </BodyText>
 
-                <Box display="flex" gap="10px" m="10px" justifyContent="center">
-                  {pokemonData.types.map((type, index) => (
-                    <TypeTag type={type.type.name} key={index} />
-                  ))}
-                </Box>
+                    <Box
+                      display="flex"
+                      gap="10px"
+                      m="10px"
+                      justifyContent="center"
+                    >
+                      {pokemonData.types.map((type, index) => (
+                        <TypeTag type={type.type.name} key={index} />
+                      ))}
+                    </Box>
 
-                <StatTitleText fontSize="16px">Abilities</StatTitleText>
-                <Box sx={abilitiesContainer}>
-                  {pokemonData.abilities.map((ability, index) => (
-                    <AbilityTag abilityInfo={ability} key={index} />
-                  ))}
-                </Box>
+                    <StatTitleText fontSize="16px">Abilities</StatTitleText>
+                    <Box sx={abilitiesContainer}>
+                      {pokemonData.abilities.map((ability, index) => (
+                        <AbilityTag abilityInfo={ability} key={index} />
+                      ))}
+                    </Box>
 
-                <StatTitleText fontSize="16px">Base Stats</StatTitleText>
-                <Box sx={statsContainer}>
-                  {pokemonData.stats.map((statInfo, index) => (
-                    <StatBar
-                      stat={statInfo.stat.name}
-                      value={statInfo.base_stat}
-                      key={index}
+                    <StatTitleText fontSize="16px">Base Stats</StatTitleText>
+                    <Box sx={statsContainer}>
+                      {pokemonData.stats.map((statInfo, index) => (
+                        <StatBar
+                          stat={statInfo.stat.name}
+                          value={statInfo.base_stat}
+                          key={index}
+                        />
+                      ))}
+                    </Box>
+
+                    <EvolutionChain
+                      pokedexData={pokedexData}
+                      pokemonData={pokemonData}
+                      setActivePokemon={setActivePokemon}
+                      setTransition={setTransition}
                     />
-                  ))}
-                </Box>
+                  </Stack>
+                ) : (
+                  <SecondaryText fontWeight="bold">
+                    Please select a Pokemon.
+                  </SecondaryText>
+                )}
+              </Box>
+            </Box>
+          </CustomCard>
 
-                <EvolutionChain
-                  pokedexData={pokedexData}
-                  pokemonData={pokemonData}
-                  setActivePokemon={setActivePokemon}
-                  setTransition={setTransition}
-                />
-              </Stack>
-            ) : (
-              <SecondaryText fontWeight="bold">
-                Please select a Pokemon.
-              </SecondaryText>
-            )}
-          </Box>
+          {!activePokemonData && (
+            <Box
+              component="img"
+              src={pokeballLoader}
+              alt="Loading"
+              sx={infoSlideLoaderStyle}
+            />
+          )}
         </Box>
-      </CustomCard>
-
-      <Box
-        component="img"
-        src={pokeballLoader}
-        alt="Loading"
-        sx={infoSlideLoaderStyle}
-      />
-    </Box>
+      )}
+    </>
   );
 };

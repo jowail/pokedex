@@ -20,8 +20,8 @@ import {
   pokemonEvoStageContainer,
   pokemonEvolutionContainer,
 } from "./style";
-import { pokemonInfoSlideContainer } from "../../../pages/pokedex-display-page/more-info-slide/style";
 import { capitalise } from "../../../utils/helpers";
+import { pokemonInfoSlideContainer } from "../../../pages/pokedex-display-page/more-info-slide/style";
 
 type EvoStages = StageInfo[][];
 

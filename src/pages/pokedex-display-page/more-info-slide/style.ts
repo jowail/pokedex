@@ -1,11 +1,24 @@
 import { keyframes } from "@emotion/react";
-import { fontBgColour } from "../../../utils/colours";
+import { fontBgColour, typeBorderColours } from "../../../utils/colours";
 
 export const outterPokemonInfoSlideContainer = {
   width: "350px",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+};
+
+export const outterPokemonInfoSlideContainerMobile = (type: string) => {
+  return {
+    position: "fixed",
+    top: "0",
+    right: "0",
+    height: "100%",
+    width: "100%",
+    backgroundColor: `${typeBorderColours[type]}90`,
+    zIndex: "3",
+    transition: "all 0.2s ease",
+  };
 };
 
 export const pokemonInfoSlideContainer = {
@@ -16,6 +29,11 @@ export const pokemonInfoSlideContainer = {
   transition: "transform 0.3s ease-out",
   display: "flex",
   justifyContent: "center",
+};
+
+export const noActivePokemonCardStyle = {
+  ...pokemonInfoSlideContainer,
+  transform: "translateX(500px)",
 };
 
 export const infoSlideScrollContainer = {
@@ -38,11 +56,6 @@ export const infoSlideContainer = {
   overflow: "scroll",
   overflowX: "hidden",
   position: "absolute",
-};
-
-export const noActivePokemonCardStyle = {
-  ...pokemonInfoSlideContainer,
-  transform: "translateX(500px)",
 };
 
 export const pokemonSpriteStyle = {
