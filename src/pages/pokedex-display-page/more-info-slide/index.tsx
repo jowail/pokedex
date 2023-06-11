@@ -107,7 +107,7 @@ export const MoreInfoSlide: React.FC<MoreInfoSlideType> = ({
                 </BodyText>
 
                 <Box display="flex" gap="10px" m="10px" justifyContent="center">
-                  {pokemonData.types.map((type, index) => (
+                  {pokemonData?.types.map((type, index) => (
                     <TypeTag type={type.type.name} key={index} />
                   ))}
                 </Box>
