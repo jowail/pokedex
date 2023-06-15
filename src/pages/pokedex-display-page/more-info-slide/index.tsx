@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { CustomCard } from "../../../components/custom-card/CustomCard";
 import { PokemonDataResponseType } from "../../../services/apiRequestsTypes";
 import { requestLinks } from "../../../services/apiRequests";
-import { Box, Stack, useMediaQuery, useTheme } from "@mui/material";
+import { Box, IconButton, Stack, useMediaQuery, useTheme } from "@mui/material";
 import {
   BodyText,
   SecondaryText,
@@ -27,7 +27,10 @@ import { pokemonDataDefault } from "../../../utils/defaults";
 import { capitalise } from "../../../utils/helpers";
 
 import defaultImage from "../../../assets/default_pokemon_info.png";
+import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import pokeballLoader from "../../../assets/pokeball-icon.png";
+import { primaryTextColour } from "../../../utils/colours";
+import { useNavigate } from "react-router-dom";
 
 type MoreInfoSlideType = {
   pokedexData: Record<string, PokemonDataResponseType>;
@@ -42,6 +45,8 @@ export const MoreInfoSlide: React.FC<MoreInfoSlideType> = ({
 }) => {
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
+  const navigate = useNavigate();
+
   const [pokemonData, setPokemonData] =
     useState<PokemonDataResponseType>(pokemonDataDefault);
   const [pokemonAnimation, setPokemonAnimation] =
@@ -50,6 +55,12 @@ export const MoreInfoSlide: React.FC<MoreInfoSlideType> = ({
   const [transition, setTransition] = useState<Record<string, string>>(
     pokemonInfoSlideContainer
   );
+
+  const handleMoreInfoClick = () => {
+    console.log(`/pokemon/${pokemonData.id}`);
+
+    navigate(`/pokemon/${pokemonData.id}`);
+  };
 
   useEffect(() => {
     let dataTimer: ReturnType<typeof setTimeout> | null = null;
@@ -93,49 +104,67 @@ export const MoreInfoSlide: React.FC<MoreInfoSlideType> = ({
         <Box sx={infoSlideScrollContainer}>
           <Box sx={infoSlideContainer}>
             {hasSelectedActive ? (
-              <Stack width="100%">
-                <SecondaryText
-                  fontSize="12px"
-                  fontWeight="bold"
-                  marginBottom="-5px"
+              <>
+                <IconButton
+                  sx={{ position: "absolute", top: "2px", right: "2px" }}
+                  onClick={handleMoreInfoClick}
                 >
-                  N# {pokemonData.id}
-                </SecondaryText>
-                <BodyText fontWeight="bold" fontSize="24px">
-                  {capitalise(pokemonData.species.name)}
-                </BodyText>
+                  <OpenInNewRoundedIcon
+                    sx={{
+                      color: primaryTextColour,
+                    }}
+                  />
+                </IconButton>
 
-                <Box display="flex" gap="10px" m="10px" justifyContent="center">
-                  {pokemonData.types.map((type, index) => (
-                    <TypeTag type={type.type.name} key={index} />
-                  ))}
-                </Box>
+                <Stack width="100%">
+                  <SecondaryText
+                    fontSize="12px"
+                    fontWeight="bold"
+                    marginBottom="-5px"
+                  >
+                    N# {pokemonData.id}
+                  </SecondaryText>
+                  <BodyText fontWeight="bold" fontSize="24px">
+                    {capitalise(pokemonData.species.name)}
+                  </BodyText>
 
-                <StatTitleText fontSize="16px">Abilities</StatTitleText>
-                <Box sx={abilitiesContainer}>
-                  {pokemonData.abilities.map((ability, index) => (
-                    <AbilityTag abilityInfo={ability} key={index} />
-                  ))}
-                </Box>
+                  <Box
+                    display="flex"
+                    gap="10px"
+                    m="10px"
+                    justifyContent="center"
+                  >
+                    {pokemonData.types.map((type, index) => (
+                      <TypeTag type={type.type.name} key={index} />
+                    ))}
+                  </Box>
 
-                <StatTitleText fontSize="16px">Base Stats</StatTitleText>
-                <Box sx={statsContainer}>
-                  {pokemonData.stats.map((statInfo, index) => (
-                    <StatBar
-                      stat={statInfo.stat.name}
-                      value={statInfo.base_stat}
-                      key={index}
-                    />
-                  ))}
-                </Box>
+                  <StatTitleText fontSize="16px">Abilities</StatTitleText>
+                  <Box sx={abilitiesContainer}>
+                    {pokemonData.abilities.map((ability, index) => (
+                      <AbilityTag abilityInfo={ability} key={index} />
+                    ))}
+                  </Box>
 
-                <EvolutionChain
-                  pokedexData={pokedexData}
-                  pokemonData={pokemonData}
-                  setActivePokemon={setActivePokemon}
-                  setTransition={setTransition}
-                />
-              </Stack>
+                  <StatTitleText fontSize="16px">Base Stats</StatTitleText>
+                  <Box sx={statsContainer}>
+                    {pokemonData.stats.map((statInfo, index) => (
+                      <StatBar
+                        stat={statInfo.stat.name}
+                        value={statInfo.base_stat}
+                        key={index}
+                      />
+                    ))}
+                  </Box>
+
+                  <EvolutionChain
+                    pokedexData={pokedexData}
+                    pokemonData={pokemonData}
+                    setActivePokemon={setActivePokemon}
+                    setTransition={setTransition}
+                  />
+                </Stack>
+              </>
             ) : (
               <SecondaryText fontWeight="bold">
                 Please select a Pokemon.
