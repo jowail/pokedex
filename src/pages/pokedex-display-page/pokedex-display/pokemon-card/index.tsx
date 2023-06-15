@@ -1,4 +1,10 @@
-import { Box, CircularProgress, Grid } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Grid,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { PokemonDataResponseType } from "../../../../services/apiRequestsTypes";
 import {
@@ -19,6 +25,7 @@ import {
   capitaliseDash,
   removeDash,
 } from "../../../../utils/helpers";
+import { useNavigate } from "react-router-dom";
 
 type PokemonCardProps = {
   pokedexEntryNum: number;
@@ -33,6 +40,10 @@ export const PokemonCard: React.FC<PokemonCardProps> = ({
   inSearchList,
   setActivePokemon,
 }) => {
+  const theme = useTheme();
+  const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
+  const navigate = useNavigate();
+
   const [displayName, setDisplayName] = useState<string>("");
   const [isMouseOver, setIsMouseOver] = useState<boolean>(false);
   const [hasImgLoaded, setHasImgLoaded] = useState<boolean>(false);
@@ -48,7 +59,11 @@ export const PokemonCard: React.FC<PokemonCardProps> = ({
    * when card clicked set as active pokemon for the info slide
    */
   const handleCardClick = () => {
-    setActivePokemon(pokemonData?.species.name);
+    if (hasImgLoaded) {
+      isTablet
+        ? navigate(`/pokemon/${pokemonData.id}`)
+        : setActivePokemon(pokemonData?.species.name);
+    }
   };
 
   // get initial pokemon data if the card is supposed to be displayed
